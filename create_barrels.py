@@ -11,6 +11,7 @@ Usage:
 - Run the script to generate barrel icons for the defined fluids.
 """
 
+import argparse
 import os
 from PIL import Image
 
@@ -22,15 +23,15 @@ SIDE_ALPHA = 0.75  # Adjusted intensity for side mask
 TOP_HOOP_ALPHA = 0.75  # Adjusted intensity for hoop top mask
 
 # Define global constants for file paths
-BARREL_FILL_ICON = "icons/barrel/barrel-fill.png"
-BARREL_SIDE_MASK_ICON = "icons/barrel/barrel-side-mask.png"
-BARREL_TOP_MASK_ICON = "icons/barrel/barrel-hoop-top-mask.png"
+BARREL_FILL_ICON = "barrel-fill.png"
+BARREL_SIDE_MASK_ICON = "barrel-side-mask.png"
+BARREL_TOP_MASK_ICON = "barrel-hoop-top-mask.png"
 
-BARREL_EMPTY_ICON = "icons/barrel/barrel-empty.png"
-BARREL_EMPTY_SIDE_MASK_ICON = "icons/barrel/barrel-empty-side-mask.png"
-BARREL_EMPTY_TOP_MASK_ICON = "icons/barrel/barrel-empty-top-mask.png"
+BARREL_EMPTY_ICON = "barrel-empty.png"
+BARREL_EMPTY_SIDE_MASK_ICON = "barrel-empty-side-mask.png"
+BARREL_EMPTY_TOP_MASK_ICON = "barrel-empty-top-mask.png"
 
-FLUID_ICON_TEMPLATE = "icons/barrel/fluids/{fluid_name}.png"
+FLUID_ICON_TEMPLATE = "{fluid_name}.png"
 
 STANDING_BARREL_LAYERS = {
     'base': BARREL_FILL_ICON,
@@ -59,12 +60,12 @@ def apply_tint(image, tint_color):
 
 
 # Generate barrel icons
-def generate_barrel_icons(fluid: dict, layers: dict[str, str], icon_position: str=None):
+def generate_barrel_icons(root_folder: str, fluid: dict, layers: dict[str, str], icon_position: str=None):
 
 
-    base_icon = Image.open(layers['base']).convert("RGBA")
-    side_mask = Image.open(layers['side']).convert("RGBA")
-    top_mask = Image.open(layers['top']).convert("RGBA")
+    base_icon = Image.open(os.path.join(root_folder, layers['base'])).convert("RGBA")
+    side_mask = Image.open(os.path.join(root_folder, layers['side'])).convert("RGBA")
+    top_mask = Image.open(os.path.join(root_folder, layers['top'])).convert("RGBA")
     side_tint = get_color_with_alpha(fluid['base_color'], SIDE_ALPHA)
     fluid_icon_path = FLUID_ICON_TEMPLATE.format(fluid_name=fluid['name'])
 
@@ -78,7 +79,7 @@ def generate_barrel_icons(fluid: dict, layers: dict[str, str], icon_position: st
     base_icon.paste(top_mask, (0, 0), top_mask)
 
     if icon_position is not None:
-        fluid_icon = Image.open(fluid_icon_path).convert("RGBA")
+        fluid_icon = Image.open(os.path.join(root_folder, fluid_icon_path)).convert("RGBA")
         scale = 16.0 / (DEFAULT_ICON_SIZE / 2)
         new_size = (int(fluid_icon.width * scale), int(fluid_icon.height * scale))
         fluid_icon = fluid_icon.resize(new_size, Image.LANCZOS)
@@ -94,27 +95,33 @@ def generate_barrel_icons(fluid: dict, layers: dict[str, str], icon_position: st
 
 # Example usage
 if __name__ == "__main__":
-    output_dir = "icons/barrel/output"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+
+    parser = argparse.ArgumentParser(description='create_barrels.py')
+    parser.add_argument('-p', '--icon_root_path', required=True, type=str, help="Path to root icon folder that has barrel mask files")
+    parser.add_argument('-o', '--output_folder', default="icons/barrels/output", type=str, help="Folder where icons will be created")
+
+    args = parser.parse_args()
+
+    if not os.path.exists(args.output_folder):
+        os.makedirs(args.output_folder)
 
     for fluid_name, barrel_fluid in fluids_for_barrels.items():
 
         # Generate barrel icon
-        barrel_icon = generate_barrel_icons(barrel_fluid, STANDING_BARREL_LAYERS)
-        barrel_icon_path = os.path.join(output_dir, f"{fluid_name}.png")
+        barrel_icon = generate_barrel_icons(args.icon_root_path, barrel_fluid, STANDING_BARREL_LAYERS)
+        barrel_icon_path = os.path.join(args.output_folder, f"{fluid_name}.png")
         barrel_icon.save(barrel_icon_path)
         print(f"Generated barrel icon for {fluid_name}: {barrel_icon_path}")
 
 
         # Generate filled barrel icon
-        filled_barrel_icon = generate_barrel_icons(barrel_fluid, STANDING_BARREL_LAYERS, "top-left")
-        filled_icon_path = os.path.join(output_dir, f"{fluid_name}_barrel_fill.png")
+        filled_barrel_icon = generate_barrel_icons(args.icon_root_path, barrel_fluid, STANDING_BARREL_LAYERS, "top-left")
+        filled_icon_path = os.path.join(args.output_folder, f"{fluid_name}_barrel_fill.png")
         filled_barrel_icon.save(filled_icon_path)
         print(f"Generated filled barrel icon for {fluid_name}: {filled_icon_path}")
 
         # Generate empty barrel icon
-        empty_barrel_icon = generate_barrel_icons(barrel_fluid, EMPTY_BARREL_LAYERS, "bottom-right")
-        empty_icon_path = os.path.join(output_dir, f"{fluid_name}_barrel_empty.png")
+        empty_barrel_icon = generate_barrel_icons(args.icon_root_path, barrel_fluid, EMPTY_BARREL_LAYERS, "bottom-right")
+        empty_icon_path = os.path.join(args.output_folder, f"{fluid_name}_barrel_empty.png")
         empty_barrel_icon.save(empty_icon_path)
         print(f"Generated empty barrel icon for {fluid_name}: {empty_icon_path}")
