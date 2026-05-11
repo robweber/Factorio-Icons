@@ -26,6 +26,7 @@ Usage:
    - Modify the `part` parameter in the `process_images` function call to crop different parts of the image.
 
 """
+import argparse
 import os
 from PIL import Image
 
@@ -59,7 +60,7 @@ def process_images(input_folder: str, output_folder: str, part=1):
                     if (width / 2) == height or (width - height) == height / 2:
                         mode = '2_part'
                         max_part = 2
-                    elif (width / 4) == height:
+                    elif (width / height) == 1.875:
                         mode = '4_part'
                         max_part = 4
                     else:
@@ -109,9 +110,15 @@ def process_images(input_folder: str, output_folder: str, part=1):
             print(f"Skipping {filename}: Not a PNG file.")
 
 if __name__ == "__main__":
-    # Define the input and output folders
-    input_folder = 'icons/collected/120x64'
-    output_folder = 'icons/compiled/64x64'
+
+    # get the inputs from the command line
+    parser = argparse.ArgumentParser(description='crop.py')
+    parser.add_argument('-i', '--input_folder', required=True, type=str, help='Path to the folder containing input images.')
+    parser.add_argument('-o', '--output_folder', required=True, type=str, help='Path to the folder where processed images will be saved.')
+    parser.add_argument('-p', '--part', default=1, type=int,
+                        help='The part to crop. For 4-part images, valid values are 1-4. For 2-part images, valid values are 1-2. Defaults to 1.')
+
+    args = parser.parse_args()
 
     # Process the images with the desired part
-    process_images(input_folder, output_folder, part=1)
+    process_images(args.input_folder, args.output_folder, part=args.part)
