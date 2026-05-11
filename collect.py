@@ -4,6 +4,7 @@ It copies images that match target sizes to a designated destination folder, ens
 filename conflicts by generating unique filenames when necessary.
 """
 
+import argparse
 import os
 from PIL import Image
 import shutil
@@ -11,13 +12,6 @@ from typing import Tuple, List
 
 # Define the target size and file extension
 FILE_EXTENSION: str = '.png'
-DESTINATION_FOLDER: str = 'icons'
-PATH: str = r'D:\SteamLibrary\steamapps\common\Factorio\data'
-
-# Create the destination folder if it doesn't exist
-if not os.path.exists(DESTINATION_FOLDER):
-    os.makedirs(DESTINATION_FOLDER)
-
 
 def get_unique_filename(destination_folder: str, filename: str) -> str:
     """
@@ -36,11 +30,12 @@ def get_unique_filename(destination_folder: str, filename: str) -> str:
     return new_filename
 
 
-def find_and_copy_images(root_folder: str, target_size: Tuple[int, int]) -> None:
+def find_and_copy_images(root_folder: str, destination_root_folder: str, target_size: Tuple[int, int]) -> None:
     """
     Search for images of a specific size and copy them to the destination folder.
 
     :param root_folder: The root directory to start searching for images.
+    :param destination_root_folder: The destination root folder to download images to
     :param target_size: A tuple representing the target size (width, height).
     """
     for root, dirs, files in os.walk(root_folder):
@@ -51,7 +46,7 @@ def find_and_copy_images(root_folder: str, target_size: Tuple[int, int]) -> None
                     with Image.open(file_path) as img:
                         if img.size == target_size:
                             folder = f"{target_size[0]}x{target_size[1]}"
-                            destination_size_folder = os.path.join(DESTINATION_FOLDER, folder)
+                            destination_size_folder = os.path.join(destination_root_folder, folder)
                             unique_filename = get_unique_filename(destination_size_folder, file)
                             destination_path = os.path.join(destination_size_folder, unique_filename)
 
@@ -66,9 +61,20 @@ def find_and_copy_images(root_folder: str, target_size: Tuple[int, int]) -> None
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='collect.py')
+    parser.add_argument('-p', '--icon_path', required=True, type=str, help=r"Path to Factorio icons, if using Steam this is Steam/steamapps/common/Factorio/data")
+    parser.add_argument('-d', '--destination_folder', default="icons", type=str, help="Folder where icons will be copied to")
+
+    args = parser.parse_args()
+
+    # Create the destination folder if it doesn't exist
+    if not os.path.exists(args.destination_folder):
+        os.makedirs(args.destination_folder)
+
     # Start the search from the specified directory with target sizes
     target_sizes: List[Tuple[int, int]] = [(120, 64), (128, 64), (192, 128), (480, 256)]
     for target_size in target_sizes:
-        find_and_copy_images(PATH, target_size)
+        find_and_copy_images(args.icon_path.replace("\\", "/"), args.destination_folder, target_size)
 
     print("Search and copy completed.")
