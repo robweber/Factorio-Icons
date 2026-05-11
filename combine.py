@@ -3,6 +3,8 @@ This script provides functionality to overlay multiple images with optional down
 It uses the Python Imaging Library (PIL) to manipulate images and combine them into a single output.
 """
 
+import argparse
+import sys
 from PIL import Image
 
 def overlay_two_images(base_image: Image.Image, overlay_image: Image.Image, downscale: float = 1.0) -> Image.Image:
@@ -28,18 +30,38 @@ def overlay_two_images(base_image: Image.Image, overlay_image: Image.Image, down
 
 
 if __name__ == "__main__":
-    # Example usage
-    image_paths = [
-        'icons/64x64/recycling.png',
-        'icons/64x64/scrap.png',
-        'icons/64x64/recycling-top.png'
-    ]
-    output_path = 'compiled/scrap_recycling.png'
 
-    image1 = Image.open(image_paths[0]).convert("RGBA")
-    image2 = Image.open(image_paths[1]).convert("RGBA")
-    image3 = Image.open(image_paths[2]).convert("RGBA")
+    parser = argparse.ArgumentParser(description='combine.py')
+    parser.add_argument('-i', '--images', required=True, type=str, nargs="+", help="Path to the images to combine, should be more than one")
+    parser.add_argument('-d', '--downscale', required=False, type=float, nargs="*", help="Downscaling factor (1, .5, etc). If used it must match the number of images - 1")
+    parser.add_argument('-o', '--output_file', required=True, type=str, help="Path to file where final combined images is stored")
 
-    combined_image = overlay_two_images(image1, image2, downscale=0.75)
-    combined_image = overlay_two_images(combined_image, image3, downscale=1)
-    combined_image.save(output_path)
+    args = parser.parse_args()
+
+    # make sure inputs match
+    downscaling = []
+    if(args.downscale):
+        # if they don't match, exit
+        if(len(args.downscale) != len(args.images) - 1):
+            print(f"Number of image pairs ({len(args.images)}) does not equal downscale parameters ({len(args.downscale)})")
+            sys.exit(2)
+        else:
+            downscaling = args.downscale
+    else:
+        # set to 1 for all
+        downscaling = [1.0 for i in args.images]
+
+    # combine the first two images
+    combined_image = overlay_two_images(Image.open(args.images[0]).convert("RGBA"),
+                                        Image.open(args.images[1]).convert("RGBA"),
+                                        downscale=downscaling[0])
+
+    if(len(args.images) > 2):
+        for i in range(2, len(args.images)):
+            combined_image = overlay_two_images(combined_image,
+                                                Image.open(args.images[i]),
+                                                downscale=downscaling[i - 1])
+
+    # save the output
+    print(f"Saving file to {args.output_file}")
+    combined_image.save(args.output_file)
