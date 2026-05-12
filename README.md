@@ -46,6 +46,17 @@ This script searches for PNG images within a specified directory and its subdire
 It copies images that match target sizes to a designated destination folder, ensuring no
 filename conflicts by generating unique filenames when necessary.
 
+**Example:** `python collect.py -p "C:/Program Files (x86)/Steam/steamapps/common/Factorio/data" -d icons/
+
+**Arguments**:
+
+```
+  -p, --icon_path ICON_PATH
+                        Path to Factorio icons, if using Steam this is Steam/steamapps/common/Factorio/data
+  -d, --destination_folder DESTINATION_FOLDER
+                        Folder where icons will be copied to
+```
+
 ---
 
 #### `create_barrels.py`
@@ -53,6 +64,17 @@ filename conflicts by generating unique filenames when necessary.
 **Description**:  
 This script generates barrel icons for various fluids in a game or application using the Python Imaging
 Library (PIL). It creates composite icons for filled and empty barrels based on fluid colors.
+
+**Example:** `python create_barrels.py -p icons/cropped -o icons/output
+
+**Arguments:**
+
+```
+  -p, --icon_root_path ICON_ROOT_PATH
+                        Path to root icon folder that has barrel mask files
+  -o, --output_folder OUTPUT_FOLDER
+                        Folder where icons will be created
+```
 
 ---
 
@@ -63,6 +85,18 @@ This module provides functionality to process PNG images by cropping them into s
 dimensions. It is designed to handle images with specific width-to-height ratios, supporting both 2-part and
 4-part cropping modes.
 
+**Example:** `python crop.py -i icons/120x64 -o icons/cropped -p 1
+
+**Arguments:**
+
+```
+  -i, --input_folder INPUT_FOLDER
+                        Path to the folder containing input images.
+  -o, --output_folder OUTPUT_FOLDER
+                        Path to the folder where processed images will be saved.
+  -p, --part PART       The part to crop. For 4-part images, valid values are 1-4. For 2-part images, valid values are 1-2. Defaults to 1.
+```
+
 ---
 
 #### `upscale.py`
@@ -71,6 +105,19 @@ dimensions. It is designed to handle images with specific width-to-height ratios
 This module provides functions to rescale images from a specified size to a target size.
 It supports processing individual image files or entire folders containing images.
 
+**Example:** `python upscale.py -i path/to/image1.png -o output.png -s 100 100
+
+**Arguments:**
+
+```
+  -i, --input_path INPUT_PATH
+                        Input a file or folder of icon files
+  -o, --output_path OUTPUT_PATH
+                        Output folder for upscaled images
+  -s, --scale SCALE SCALE
+                        The size to scale the images, width and height
+```
+
 ---
 
 #### `combine.py`
@@ -78,6 +125,19 @@ It supports processing individual image files or entire folders containing image
 **Description**:  
 This script provides functionality to overlay multiple images with optional downscaling.
 It uses the Python Imaging Library (PIL) to manipulate images and combine them into a single output.
+
+**Example:** `python combine.py -i path/to/image1.png /path/to/image2.png -o output.png
+
+**Arguments:**
+
+```
+  -i, --images IMAGES [IMAGES ...]
+                        Path to the images to combine, should be more than one
+  -d, --downscale [DOWNSCALE ...]
+                        Downscaling factor (1, .5, etc). If used it must match the number of images - 1
+  -o, --output_file OUTPUT_FILE
+                        Path to file where final combined images is stored
+```
 
 ---
 
