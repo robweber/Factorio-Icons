@@ -46,7 +46,7 @@ This script searches for PNG images within a specified directory and its subdire
 It copies images that match target sizes to a designated destination folder, ensuring no
 filename conflicts by generating unique filenames when necessary.
 
-**Example:** `python collect.py -p "C:/Program Files (x86)/Steam/steamapps/common/Factorio/data" -d icons/
+**Example:** `python collect.py -p "C:/Program Files (x86)/Steam/steamapps/common/Factorio/data" -d icons/`
 
 **Arguments**:
 
@@ -65,7 +65,7 @@ filename conflicts by generating unique filenames when necessary.
 This script generates barrel icons for various fluids in a game or application using the Python Imaging
 Library (PIL). It creates composite icons for filled and empty barrels based on fluid colors.
 
-**Example:** `python create_barrels.py -p icons/cropped -o icons/output
+**Example:** `python create_barrels.py -p icons/cropped -o icons/output`
 
 **Arguments:**
 
@@ -85,7 +85,7 @@ This module provides functionality to process PNG images by cropping them into s
 dimensions. It is designed to handle images with specific width-to-height ratios, supporting both 2-part and
 4-part cropping modes.
 
-**Example:** `python crop.py -i icons/120x64 -o icons/cropped -p 1
+**Example:** `python crop.py -i icons/120x64 -o icons/cropped -p 1`
 
 **Arguments:**
 
@@ -105,7 +105,7 @@ dimensions. It is designed to handle images with specific width-to-height ratios
 This module provides functions to rescale images from a specified size to a target size.
 It supports processing individual image files or entire folders containing images.
 
-**Example:** `python upscale.py -i path/to/image1.png -o output.png -s 100 100
+**Example:** `python upscale.py -i path/to/image1.png -o output.png -s 100 100`
 
 **Arguments:**
 
@@ -126,7 +126,7 @@ It supports processing individual image files or entire folders containing image
 This script provides functionality to overlay multiple images with optional downscaling.
 It uses the Python Imaging Library (PIL) to manipulate images and combine them into a single output.
 
-**Example:** `python combine.py -i path/to/image1.png /path/to/image2.png -o output.png
+**Example:** `python combine.py -i path/to/image1.png /path/to/image2.png -o output.png`
 
 **Arguments:**
 
