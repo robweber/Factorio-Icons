@@ -5,25 +5,19 @@ This module provides functions to rescale images from a specified size to a targ
 It supports processing individual image files or entire folders containing images.
 """
 
+import argparse
 import os
 from typing import Tuple
 from PIL import Image
 
-# Global variables for image sizes
-FROM_SIZE: Tuple[int, int] = (64, 64)
-TO_SIZE: Tuple[int, int] = (100, 100)
 
-
-def rescale_image(input_image_path: str, output_image_path: str, size: Tuple[int, int] = TO_SIZE) -> None:
+def rescale_image(input_image_path: str, output_image_path: str, size: Tuple[int, int]) -> None:
     try:
         with Image.open(input_image_path) as img:
-            if img.size == FROM_SIZE:
-                img_rescaled = img.resize(size, Image.LANCZOS)
-                os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
-                img_rescaled.save(output_image_path)
-                print(f"Image successfully rescaled to {size} and saved to {output_image_path}")
-            else:
-                print(f"Skipping {input_image_path}: size does not match {FROM_SIZE}")
+            img_rescaled = img.resize(size, Image.LANCZOS)
+            os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
+            img_rescaled.save(output_image_path)
+            print(f"Image successfully rescaled to {size} and saved to {output_image_path}")
     except Exception as e:
         print(f"An error occurred with {input_image_path}: {e}")
 
@@ -31,7 +25,7 @@ def rescale_image(input_image_path: str, output_image_path: str, size: Tuple[int
 def rescale_images_in_folder(
     input_folder: str,
     output_folder: str,
-    to_size: Tuple[int, int] = TO_SIZE
+    to_size: Tuple[int, int]
 ) -> None:
     for root, _, files in os.walk(input_folder):
         for file in files:
@@ -45,7 +39,7 @@ def rescale_images_in_folder(
 def rescale(
     input_path: str,
     output_folder: str,
-    to_size: Tuple[int, int] = TO_SIZE
+    to_size: Tuple[int, int]
 ) -> None:
     if os.path.isfile(input_path):
         file_name: str = os.path.basename(input_path)
@@ -59,6 +53,12 @@ def rescale(
 
 # Example usage
 if __name__ == "__main__":
-    input_path: str = 'icons/64x64'  # Can be a file or a folder
-    output_folder: str = 'icons/compiled/100x100'
-    rescale(input_path, output_folder)
+
+    parser = argparse.ArgumentParser(description='upscale.py')
+    parser.add_argument('-i', '--input_path', required=True, type=str, help="Input a file or folder of icon files")
+    parser.add_argument('-o', '--output_path', required=True, type=str, help="Output folder for upscaled images")
+    parser.add_argument('-s', '--scale', default=[100, 100], nargs=2, type=int, help="The size to scale the images, width and height")
+
+    args = parser.parse_args()
+
+    rescale(args.input_path, args.output_path, tuple(args.scale))
